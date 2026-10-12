@@ -8,7 +8,9 @@ Oficjalne repozytorium kodu, konfiguracji oraz dokumentacji projektu realizowane
 * Michał Górka
 * Mateusz Kosek
 * Mikołaj Zielniok
-* ...
+* Maciej Dyrdał
+* Mateusz Purol
+* Mateusz Kulak
 
 ---
 
