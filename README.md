@@ -3,20 +3,23 @@
 Oficjalne repozytorium kodu, konfiguracji oraz dokumentacji projektu realizowanego w ramach przedmiotu **Metodyka Projektów Telekomunikacyjnych**.
 
 ## Zespół Projektowy
-* Maciej Kucharski
-* Adrian Homa
-* Michał Górka
-* Mateusz Kosek
-* Mikołaj Zielniok
-* Maciej Dyrdał
-* Mateusz Purol
-* Mateusz Kulak
+
+ Imię i nazwisko | Rola w projekcie | GitHub |
+| :--- | :--- | :--- |
+| **Maciej Kucharski** | | [@kucharzky](https://github.com/kucharzky) |
+| **Adrian Homa** |  | [@AH-repo](https://github.com/AH-repo) |
+| **Michał Górka** |  | [@migorka](https://github.com/migorka) |
+| **Mateusz Kosek** |  | [@Mateusz-AGH](https://github.com/Mateusz-AGH) |
+| **Mikołaj Zielniok** |  | [@w1nn3t0u-o7](https://github.com/w1nn3t0u-o7) |
+| **Maciej Dyrdał** |  | ... |
+| **Mateusz Purol** |  | [@Skaaty](https://github.com/Skaaty) |
+| **Mateusz Kulak** |  | ... |
 
 ---
 
 ## Git Flow
 
-W projekcie stosujemy uproszczony model **Git Flow**, aby zapewnić porządek w wersjonowaniu konfiguracji urządzeń i skryptów automatyzacji.
+W projekcie stosujemy uproszczony model **Git Flow**, aby zapewnić porządek w wersjonowaniu.
 
 ### 1. Gałęzie główne (Protected Branches)
 * **`main`** – Gałąź produkocja / stabilna. Zawiera wyłącznie w pełni przetestowane wersje projektu, gotowe do oddania prowadzącemu. Brak bezpośrednich commitów (tylko poprzez Merge Request z `dev`).
