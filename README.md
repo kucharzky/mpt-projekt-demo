@@ -11,9 +11,9 @@ Oficjalne repozytorium kodu, konfiguracji oraz dokumentacji projektu realizowane
 | **Michał Górka** |  | [@migorka](https://github.com/migorka) |
 | **Mateusz Kosek** |  | [@Mateusz-AGH](https://github.com/Mateusz-AGH) |
 | **Mikołaj Zielniok** |  | [@w1nn3t0u-o7](https://github.com/w1nn3t0u-o7) |
-| **Maciej Dyrdał** |  | ... |
+| **Maciej Dyrdał** |  | [@maciejdyrdal](https://github.com/maciejdyrdal) |
 | **Mateusz Purol** |  | [@Skaaty](https://github.com/Skaaty) |
-| **Mateusz Kulak** |  | ... |
+| **Mateusz Kulak** |  | [@MatKulak](https://github.com/MatKulak) |
 
 ---
 
