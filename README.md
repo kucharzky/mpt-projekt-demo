@@ -1,4 +1,4 @@
-# Projekt [NAZWA TBD] – Metodyka Projektów
+# Projekt - Planer dla studentów
 
 Oficjalne repozytorium kodu, konfiguracji oraz dokumentacji projektu realizowanego w ramach przedmiotu **Metodyka Projektów Telekomunikacyjnych**.
 
