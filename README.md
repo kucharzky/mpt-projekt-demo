@@ -6,14 +6,14 @@ Oficjalne repozytorium kodu, konfiguracji oraz dokumentacji projektu realizowane
 
  Imię i nazwisko | Rola w projekcie | GitHub |
 | :--- | :--- | :--- |
-| **Maciej Kucharski** | | [@kucharzky](https://github.com/kucharzky) |
-| **Adrian Homa** |  | [@AH-repo](https://github.com/AH-repo) |
-| **Michał Górka** |  | [@migorka](https://github.com/migorka) |
-| **Mateusz Kosek** |  | [@Mateusz-AGH](https://github.com/Mateusz-AGH) |
-| **Mikołaj Zielniok** |  | [@w1nn3t0u-o7](https://github.com/w1nn3t0u-o7) |
-| **Maciej Dyrdał** |  | [@maciejdyrdal](https://github.com/maciejdyrdal) |
-| **Mateusz Purol** |  | [@Skaaty](https://github.com/Skaaty) |
-| **Mateusz Kulak** |  | [@MatKulak](https://github.com/MatKulak) |
+| **Maciej Kucharski** | Scrum Master | [@kucharzky](https://github.com/kucharzky) |
+| **Adrian Homa** | Tester | [@AH-repo](https://github.com/AH-repo) |
+| **Michał Górka** | Product Owner | [@migorka](https://github.com/migorka) |
+| **Mateusz Kosek** | Frontend | [@Mateusz-AGH](https://github.com/Mateusz-AGH) |
+| **Mikołaj Zielniok** | DevOps | [@w1nn3t0u-o7](https://github.com/w1nn3t0u-o7) |
+| **Maciej Dyrdał** | Backend | [@maciejdyrdal](https://github.com/maciejdyrdal) |
+| **Mateusz Purol** | Frontend | [@Skaaty](https://github.com/Skaaty) |
+| **Mateusz Kulak** | Backend | [@MatKulak](https://github.com/MatKulak) |
 
 ---
 
