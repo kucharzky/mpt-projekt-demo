@@ -1,0 +1,1 @@
+moga być taski na które można nałożyć inne zadania
