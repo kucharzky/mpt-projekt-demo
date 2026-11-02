@@ -39,8 +39,6 @@ Prace nad nowymi elementami wykonujemy na osobnych gałęziach tworzonych z gał
 
 ## Struktura Repozytorium
 
-Monorepo TypeScript (npm workspaces) pod produkt **SmartUniPlanner**:
-
 ```
 mpt-projekt/
 ├── apps/
