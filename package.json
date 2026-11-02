@@ -1,0 +1,20 @@
+{
+  "name": "mpt-projekt",
+  "private": true,
+  "version": "0.0.0",
+  "description": "SmartUniPlanner — Inteligentny Planer Studencki",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w @mpt/web",
+    "dev:api": "npm run start:dev -w @mpt/api",
+    "build": "npm run build -w @mpt/shared -w @mpt/ics-parser -w @mpt/api -w @mpt/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

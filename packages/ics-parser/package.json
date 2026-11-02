@@ -1,0 +1,15 @@
+{
+  "name": "@mpt/ics-parser",
+  "private": true,
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"lint: not configured yet\"",
+    "test": "echo \"test: not configured yet\""
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

@@ -37,4 +37,31 @@ Prace nad nowymi elementami wykonujemy na osobnych gałęziach tworzonych z gał
 
 ---
 
-## Struktura Repozytorium [TBD]
+## Struktura Repozytorium
+
+Monorepo TypeScript (npm workspaces) pod produkt **SmartUniPlanner**:
+
+```
+mpt-projekt/
+├── apps/
+│   ├── web/              # Frontend: React 19 · Vite · Tailwind · TypeScript
+│   └── api/              # Backend: NestJS · Prisma · PostgreSQL
+├── packages/
+│   ├── shared/           # Wspólne typy domenowe (eventy, zadania, statusy)
+│   └── ics-parser/       # Import i walidacja .ics (USOS)
+├── docs/                 # ADR, specyfikacje, notatki
+├── .github/workflows/    # CI: lint · test · build
+├── docker-compose.yml    # Lokalne API + PostgreSQL
+├── .env.example          # Szablon zmiennych środowiskowych
+└── README.md
+```
+
+| Katalog | Rola |
+| :--- | :--- |
+| `apps/web` | UI kalendarza, zadań, formularzy, Kanban, conflict UI; REST do API |
+| `apps/api` | Moduły NestJS (auth, users, calendar, tasks, scheduler), Prisma, JWT/sesja |
+| `packages/shared` | Typy i stałe współdzielone przez web i api |
+| `packages/ics-parser` | Parsowanie VEVENT, deduplikacja, błędy walidacji |
+| `docs/` | ADR decyzji domenowych i technicznych |
+
+Lokalnie: skopiuj `.env.example` → `.env`, potem `docker compose up` (API + Postgres). Pliki `.env`, `node_modules`, artefakty build oraz katalog `.scratch/` są w `.gitignore`.
