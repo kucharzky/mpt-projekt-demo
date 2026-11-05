@@ -1,58 +1,101 @@
-# Glossary
+# SmartUniPlanner
 
-Domain vocabulary for the Student Smart Timetable & Auto-Scheduler MVP. Prefer these terms in issues, specs, and code names; avoid the synonyms marked as preferred-not.
+Domain vocabulary for the student calendar, task planner and project collaboration. Current persistent behavior is recorded in ADR-0009; older ADRs retain the prototype decisions for context.
 
-## Calendar & events
+## Calendar and availability
 
-| Term | Definition | Prefer not |
-| ---- | ---------- | ---------- |
-| **Hard-locked event** | A calendar event that the auto-scheduler must never move or overwrite. All imported USOS `.ics` events are hard-locked; custom activities may be hard-locked when `is_permanent = true`. | immutable event, locked block |
-| **Permanent activity** | A custom extracurricular event with `is_permanent = true`. Treated identically to USOS classes by the scheduler. | fixed event, pinned event |
-| **Soft event** | A custom activity with `is_permanent = false`. Visible on the calendar but does not carve free slots; may be shifted when a higher-priority deadline task needs the time. | flexible event, movable event |
-| **Activity recurrence** | How a custom activity repeats: `ONE_TIME` (specific calendar date + time range), `WEEKLY` or `BIWEEKLY` (weekday + time range; biweekly anchored to the creation week, then every 14 days), or `MONTHLY` (same calendar date each month; clamp to last day when the month is shorter). | repeat rule, RRULE (for custom activities) |
-| **Series edit scope** | When changing a recurring custom activity (manual edit/delete or after a soft-event move): apply to **this occurrence only** or the **entire series**. Manual **Edit** and **Delete** from Event details ask for scope **before** the form or destructive action (not only on save). Soft-move toasts still commit occurrence-only first, with optional “Apply to entire series.” | edit mode, split series |
-| **Event edit / delete** | From Event details: change title/time or remove a **custom activity** (soft or permanent) or a **scheduled task session**. USOS classes and recovery breaks are read-only here. Manual edits do not enforce the transition buffer; overlapping a hard-locked event shows a warning but is allowed. | mutate event, remove block |
-| **Task budget reconciliation** | After a session edit/delete, if placed session hours ≠ `hours_required`: **Propose** fill-in sessions for the shortfall (normal placement path) or **Reduce** `hours_required` to match placed hours (0 → parent **DONE**). If placed hours exceed required, silently raise `hours_required`. | hours adjust, backfill sessions |
-| **USOS import** | Ingesting a standard `.ics` (iCalendar) file exported from USOS via drag-and-drop or file picker. Parsed `VEVENT` fields for the prototype: `SUMMARY`, `DTSTART`, `DTEND`, `LOCATION` (and `DESCRIPTION` when present). Discrete instances only (`RRULE` out of scope). A new import or sample load **replaces** existing `USOS_ICS` events and leaves custom activities and scheduled sessions untouched. All resulting events are hard-locked. | calendar upload (when meaning USOS specifically) |
-| **Calendar event** | A timed block on the calendar. Sources: `USOS_ICS`, `CUSTOM_ACTIVITY`, `SCHEDULED_TASK`, or `RECOVERY_BREAK`. Fields include `id`, `title`, `start`, `end`, `is_permanent`, and optional `parent_task_id`. | appointment, booking |
-| **Transition buffer** | A 15-minute protected gap the auto-scheduler keeps between a newly placed session and any neighboring occupied block (USOS, activities, other sessions). Implemented by inflating busy time; not shown as its own calendar event; never used to move USOS. | reset gap, micro-break |
-| **Recovery break** | A 1-hour protected, visible calendar block (`RECOVERY_BREAK`) inserted after every second same-task session **on the same calendar day**. Placed on that day only; omitted if a full hour does not fit (never spilled alone onto the next day). No extra transition buffer around it. Blocks later algorithm placements; rebuilt when sessions are rescheduled. | rest block, regenerate hour |
-| **Weekly grid view** | The primary calendar UI: one Monday–Sunday page at a time, 07:00–22:00, 30-minute granularity, with prev/next controls to move across weeks. | week planner, timetable view |
-| **Scheduling horizon** | The open interval from today through the task’s deadline date (inclusive of days before the deadline) across navigable weeks. Session placement and partial-placement capacity are computed over this horizon, not only the currently viewed week. | visible week only, current week pool |
+**Calendar event**: A timed block representing a USOS class, custom activity, task session, recovery break or confirmed team meeting.
+_Avoid_: booking, appointment when referring to every event category.
 
-## Free slots
+**Hard-locked event**: An event the planner cannot move: a USOS class, permanent activity or confirmed team meeting.
+_Avoid_: immutable event, because a source update or explicit user action can still change it.
 
-| Term | Definition | Prefer not |
-| ---- | ---------- | ---------- |
-| **Free slot** | A contiguous window between 08:00 and 21:00 not occupied by hard-locked events (USOS or permanent activities), at least 30 minutes long. Soft events and scheduled task sessions do not shrink free slots. Shown when "Highlight Free Slots" is active as emerald overlays with duration labels; `+ Schedule Here` opens a chooser to add a task or a custom activity pinned to that gap. | gap, hole, empty block |
+**Permanent activity**: A custom commitment whose time the planner must preserve.
+_Avoid_: pinned activity; pinning refers to task sessions.
 
-## Tasks
+**Soft event**: A custom activity whose future occurrence may move to make room for deadline work. An occurrence that has already started stays in place.
+_Avoid_: disposable event; a move must preserve the occurrence.
 
-| Term | Definition | Prefer not |
-| ---- | ---------- | ---------- |
-| **Standard task** | A single-block task requiring one 1h session. On create, the auto-scheduler places that session using the same priority, preemption, and conflict rules as a large iterative task. | todo, action item |
-| **Large iterative task** | A task with a required `hours_required` (total hours to spend before the deadline), split into sessions by the distribution algorithm. Also called a **chunked task**. | big task, multi-hour task, weekly_hours_required, total_weekly_hours |
-| **Hours required** | Task field `hours_required`: total hours to place before the deadline along the scheduling horizon. UI label: “Hours to spend before deadline.” | weekly_hours_required, total_weekly_hours, hours this week |
-| **Task chunk** / **session** | One scheduled calendar block derived from a standard or large iterative task. For large tasks, bounded by `min_session_length` (default 1h, max 2h per chunk). May be marked done manually or automatically when its end time has passed. | fragment, piece |
-| **Deadline date** | Task due date as date-only (`YYYY-MM-DD`), no time component. Sole input to priority scoring. | due datetime, deadline timestamp |
-| **Task status** | Lifecycle of a task: `TODO` \| `IN_PROGRESS` \| `DONE`. Marking the parent `DONE` keeps past sessions (struck through), clears future sessions and recoveries, and may prompt rescheduling other tasks into freed gaps. | state, stage |
-| **Session done** | Whether a task session counts toward progress: manual override in event details, otherwise automatic when `end ≤ now`. Progress bar uses done hours / `hours_required`. | session complete, chunk done |
+**Activity recurrence**: The pattern defining one-time, weekly, biweekly or monthly occurrences, starting at the chosen anchor date. Monthly recurrence uses the last day of shorter months when needed.
 
-## Scheduling & priority
+**Occurrence**: One dated instance of an activity series. Its individual title or time can differ from the series, and it can be cancelled separately.
 
-| Term | Definition | Prefer not |
-| ---- | ---------- | ---------- |
-| **Priority score** | `(deadline_date − current_date)` in days. Lower score = higher urgency. | urgency rank, importance |
-| **Dynamic preemption** | When a new task has an earlier deadline than already-scheduled soft/scheduled work, the algorithm pushes lower-priority chunks (and soft events) to later free slots and places the urgent task in the earliest available slots. Hard-locked events are never moved. Soft-event moves commit on **this occurrence** immediately, with a non-blocking toast (Undo · Apply to entire series). Manual edits still prompt for series edit scope before save. | reschedule cascade, bumping |
-| **Placement proposal** | One of exactly two candidate layouts offered for preview before confirm (for standard and large tasks): *Earliest Available Slots* or *Balanced Daily Spread*. | schedule option, layout suggestion |
-| **Partial placement** | When required hours exceed remaining schedulable time before the deadline, the algorithm places what fits and warns with the unplaced remainder (e.g. “Scheduled 5 of 8 hours”). | failed schedule, blocked create |
-| **Same-date deadline conflict** | Two or more active (non-DONE) tasks share an exact `deadline_date`. Always opens the conflict-resolution UI before commit. | deadline tie, date clash |
-| **Tie-breaker order** | Explicit total ordering (`tie_breaker_order`) among same-deadline tasks; drives sequential placement when allocation mode is `SEQUENTIAL`. | priority override, manual rank |
-| **Allocation mode** | How competing same-deadline tasks share free slots: `SEQUENTIAL` (place in tie-breaker order, each task fully before the next) or `EVEN_SPLIT` (round-robin sessions across chronologically ordered free windows: A, B, C, A, B, C…). | split strategy, scheduling mode |
-| **Conflict-resolution UI** | Modal for same-date deadline conflicts: a full multi-way priority list (reorder all tied tasks) plus an even-split option, with live calendar hover previews. Confirming commits the previewed layout. | conflict picker, tie UI |
+**Series edit scope**: The distinction between changing one occurrence and changing the whole activity series. A whole-series edit replaces its pattern and clears individual exceptions.
 
-## Product
+**USOS import**: A previewed import of classes from an ICS file, with bounded recurrence expansion and stable occurrence identity. Re-import updates matching occurrences; replacing missing classes in a range requires an explicit choice.
 
-| Term | Definition | Prefer not |
-| ---- | ---------- | ---------- |
-| **Student Smart Timetable & Auto-Scheduler** | The product: a web app for university students that imports USOS schedules, tracks extracurriculars, highlights free slots, and auto-schedules tasks by deadline-driven priority with interactive conflict resolution. | the scheduler (alone), the calendar app |
+**Free slot**: An interval within configured working hours with no hard-locked event, at least 30 minutes long. It describes time without fixed commitments; soft events and planned work can still occupy it.
+_Avoid_: shared availability, which also accounts for movable commitments.
+
+**Shared availability**: Common free intervals of team members who opted in, accounting for all their occupied sessions and activities. It reveals times, never private event titles; missed sessions do not occupy it.
+
+**Transition buffer**: A configurable protected gap the planner preserves between work and neighboring commitments. It is not a separate event.
+_Avoid_: recovery break.
+
+**Recovery break**: A configurable visible rest interval after every second same-task session on the same day. It is omitted when it cannot fit that day.
+
+**Scheduling horizon**: The interval from now through the end of the relevant deadline dates, in the user's timezone, across all affected weeks.
+_Avoid_: visible week; the displayed week does not limit placement.
+
+## Tasks and effort
+
+**Standard task**: A small piece of work that can fit in a single session. It uses the same deadline and placement rules as a larger task.
+
+**Large iterative task**: Work with a total required effort split into shorter sessions before its deadline.
+_Avoid_: weekly task budget, unless the task itself repeats weekly.
+
+**Required effort / hours required**: The estimated total work needed to finish one task before its deadline, across the full scheduling horizon.
+_Avoid_: total weekly hours.
+
+**Task session / task chunk**: One calendar block assigned to a task. It can be planned, explicitly completed or marked missed.
+_Avoid_: automatically completed block; elapsed time is not proof of completion.
+
+**Pinned session**: A planned task session whose time the planner preserves. Marking it missed releases its reserved capacity.
+
+**Completed session / session done**: Work explicitly confirmed as performed; its duration counts toward task progress.
+
+**Missed session**: Work not performed in its planned slot. Its duration remains to be planned and does not count toward progress or occupied capacity.
+
+**Task budget reconciliation**: Comparing completed and planned work with required effort. A shortfall remains visible; extra work can raise the estimate to the next half-hour without implying completion.
+
+**Deadline date**: The last calendar day for the task, with no time-of-day component. It is the primary source of urgency.
+_Avoid_: due timestamp.
+
+**Task status**: TODO, IN_PROGRESS or DONE. Completing a task keeps its history and clears future planned work; completed session effort can also finish the task.
+
+**Recurring task**: A task that creates one next occurrence when completed, with a deadline advanced by its recurrence interval.
+
+## Planning decisions
+
+**Priority score**: Days remaining to the deadline; fewer days means greater urgency. Explicit ordering and importance resolve equal deadlines.
+_Avoid_: importance when referring to urgency alone.
+
+**Dynamic preemption**: Replacing movable future work with a new deadline-ordered layout. Hard-locked events, completed work, pinned sessions and already-started commitments remain protected.
+
+**Placement proposal**: A complete suggested layout of sessions, recovery breaks and soft-event moves awaiting acceptance. The two strategies favor earliest slots or a balanced spread across days.
+_Avoid_: saved schedule before acceptance.
+
+**Partial placement**: A proposal that places the work that fits and states the remaining effort that cannot fit before the deadline.
+_Avoid_: silent truncation.
+
+**Same-date deadline conflict**: Two or more active tasks sharing a deadline and competing for time. The user can order them or choose alternating allocation.
+
+**Tie-breaker order**: The user's ordering of tasks with the same deadline.
+
+**Allocation mode**: Sequential completion of competing task budgets, or an even split that alternates sessions among them.
+
+**Conflict-resolution UI**: The controls for ordering same-deadline tasks and choosing their allocation before accepting a proposal.
+
+**Planner revision**: The version of a user's planning state against which a proposal was prepared. A changed revision makes an old proposal unsafe to accept or undo.
+
+## Collaboration and recovery
+
+**Team**: A group sharing projects, with an owner, administrators and members. Private calendars remain individually owned.
+
+**Project task**: A task visible to project members, with one responsible person. That person plans its work in their own calendar.
+
+**Team meeting**: A proposed shared event that blocks no calendar until all participants accept the current availability. After confirmation it is hard-locked.
+
+**Assignment proposal**: A suggested distribution of project tasks across opted-in members, considering remaining effort, deadlines and available capacity. Each responsible person can then plan their sessions.
+
+**Trash**: Recoverable removal of tasks, sessions, activities or cancelled occurrences. Restoring an occurrence preserves its earlier individual title and time.

@@ -1,0 +1,38 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.6-bookworm
+        env:
+          POSTGRES_USER: smartuniplanner
+          POSTGRES_PASSWORD: ci_only_test_password
+          POSTGRES_DB: smartuniplanner_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smartuniplanner -d smartuniplanner_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://smartuniplanner:ci_only_test_password@127.0.0.1:5432/smartuniplanner_test
+      TEST_DATABASE_URL: postgresql://smartuniplanner:ci_only_test_password@127.0.0.1:5432/smartuniplanner_test
+      SESSION_SECRET: ci_only_session_secret_at_least_32_characters_long
+      APP_ORIGIN: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run db:generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm run api:types
+      - run: git diff --exit-code -- apps/api/openapi.json apps/web/src/api/generated/schema.ts
