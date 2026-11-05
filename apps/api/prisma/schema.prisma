@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  timezone     String   @default("Europe/Warsaw")
+  preferences  Json     @default("{}")
+  createdAt    DateTime @default(now())
+  state        PlannerState?
+  tasks        Task[]
+  activities   Activity[]
+  sessions     TaskSession[]
+  events       ImportedEvent[]
+  batches      ImportBatch[]
+  proposals    Proposal[]
+  memberships  Membership[]
+  comments     Comment[]
+  notifications Notification[]
+}
+
+model PlannerState {
+  userId   String @id
+  revision Int    @default(0)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  description       String   @default("")
+  status            String   @default("TODO")
+  importance        Int      @default(1)
+  requiredMinutes   Int
+  minSessionMinutes Int      @default(60)
+  maxSessionMinutes Int      @default(120)
+  deadlineDate      DateTime @db.Date
+  tieBreakerOrder   Int      @default(0)
+  allocationMode    String   @default("SEQUENTIAL")
+  recurrence        String?
+  recurrenceRootId  String?
+  projectId         String?
+  project           Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version           Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  sessions          TaskSession[]
+  comments          Comment[]
+  resources         Resource[]
+  @@index([userId, deadlineDate])
+  @@index([projectId, status])
+  @@unique([recurrenceRootId, deadlineDate])
+}
+
+model TaskSession {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  kind      String   @default("WORK")
+  start     DateTime @db.Timestamptz(3)
+  end       DateTime @db.Timestamptz(3)
+  status    String   @default("PLANNED")
+  pinned    Boolean  @default(false)
+  version   Int      @default(0)
+  deletedAt DateTime?
+  @@index([userId, start, end])
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  timezone    String   @default("Europe/Warsaw")
+  location    String   @default("")
+  isPermanent Boolean  @default(true)
+  recurrence  String   @default("ONE_TIME")
+  anchorDate  String
+  untilDate   String?
+  startTime   String
+  endTime     String
+  exceptions  Json     @default("{}")
+  version     Int      @default(0)
+  deletedAt   DateTime?
+  @@index([userId])
+}
+
+model ImportedEvent {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source        String   @default("USOS_ICS")
+  sourceKey     String   @default("usos")
+  uid           String
+  occurrenceKey String
+  title         String
+  location      String   @default("")
+  description   String   @default("")
+  start         DateTime @db.Timestamptz(3)
+  end           DateTime @db.Timestamptz(3)
+  sequence      Int      @default(0)
+  @@unique([userId, sourceKey, uid, occurrenceKey])
+  @@index([userId, start, end])
+}
+
+model ImportBatch {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  payload    Json
+  revision   Int
+  committed  Boolean  @default(false)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Proposal {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baseRevision      Int
+  confirmedRevision Int?
+  status            String   @default("PENDING")
+  payload           Json
+  previous          Json?
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+}
+
+model Team {
+  id          String       @id @default(uuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+  invitations Invitation[]
+  projects    Project[]
+  meetings    Meeting[]
+  assignments AssignmentProposal[]
+}
+
+model Membership {
+  teamId            String
+  userId            String
+  role              String  @default("MEMBER")
+  shareAvailability Boolean @default(false)
+  team              Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([teamId, userId])
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  email     String
+  tokenHash String   @unique
+  role      String   @default("MEMBER")
+  expiresAt DateTime
+  accepted  Boolean  @default(false)
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  title       String
+  description String   @default("")
+  tasks       Task[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Resource {
+  id     String @id @default(uuid())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title  String
+  url    String
+}
+
+model Meeting {
+  id            String   @id @default(uuid())
+  teamId        String
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creatorId     String
+  title         String
+  start         DateTime @db.Timestamptz(3)
+  end           DateTime @db.Timestamptz(3)
+  participantIds String[]
+  acceptedIds    String[]
+  revisions     Json
+  status        String   @default("PENDING")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  title     String
+  body      String
+  seen      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@unique([userId, key])
+}
+
+model AssignmentProposal {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creatorId String
+  payload   Json
+  revisions Json
+  expiresAt DateTime
+  confirmed Boolean  @default(false)
+}
+
+// Bounded time windows, shared across processes; identifiers are HMAC digests.
+model RateLimitBucket {
+  key       String   @id
+  count     Int
+  expiresAt DateTime @db.Timestamptz(3)
+  @@index([expiresAt])
+}
