@@ -16,5 +16,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.5"
   }
 }
