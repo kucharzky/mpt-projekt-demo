@@ -1,4 +1,4 @@
-FROM node:24.22.2-bookworm-slim AS dependencies
+FROM node:26.13.0-bookworm-slim AS dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 RUN chown node:node /app
@@ -27,7 +27,7 @@ CMD ["npm", "run", "dev:api"]
 FROM check AS runtime-dependencies
 RUN npm prune --omit=dev --no-audit --no-fund
 
-FROM node:24.22.2-bookworm-slim AS production
+FROM node:26.13.0-bookworm-slim AS production
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production API_HOST=0.0.0.0
