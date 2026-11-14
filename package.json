@@ -12,7 +12,9 @@
     "dev:api": "npm run start:dev -w @mpt/api",
     "build": "npm run build -w @mpt/shared -w @mpt/ics-parser -w @mpt/api -w @mpt/web",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "engines": {
     "node": ">=20"
@@ -23,5 +25,8 @@
     "i18next": "^27.1.1",
     "react-i18next": "^18.0.1",
     "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
   }
 }
