@@ -1,0 +1,2577 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "AppController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "operationId": "AppController_notifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NoticeDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/api/notifications/read": {
+      "post": {
+        "operationId": "AppController_readNotifications",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "operationId": "AuthController_session",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/api/planner/state": {
+      "get": {
+        "operationId": "PlannerController_state",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/calendar/events": {
+      "get": {
+        "operationId": "PlannerController_events",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/calendar/export": {
+      "get": {
+        "operationId": "PlannerController_export",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/tasks/{id}": {
+      "get": {
+        "operationId": "PlannerController_details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["planner"]
+      },
+      "patch": {
+        "operationId": "PlannerController_editTask",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      },
+      "delete": {
+        "operationId": "PlannerController_deleteTask",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/tasks": {
+      "post": {
+        "operationId": "PlannerController_task",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/tasks/{id}/status": {
+      "post": {
+        "operationId": "PlannerController_status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/tasks/{id}/sessions": {
+      "post": {
+        "operationId": "PlannerController_session",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/task-sessions/{id}": {
+      "patch": {
+        "operationId": "PlannerController_editSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      },
+      "delete": {
+        "operationId": "PlannerController_deleteSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/activities": {
+      "post": {
+        "operationId": "PlannerController_activity",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/activities/{id}": {
+      "get": {
+        "operationId": "PlannerController_activityDetails",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityViewDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["planner"]
+      },
+      "patch": {
+        "operationId": "PlannerController_editActivity",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      },
+      "delete": {
+        "operationId": "PlannerController_deleteActivity",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/activities/{id}/occurrences/{date}": {
+      "patch": {
+        "operationId": "PlannerController_occurrence",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      },
+      "delete": {
+        "operationId": "PlannerController_cancelOccurrence",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/me/preferences": {
+      "patch": {
+        "operationId": "PlannerController_settings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/scheduler/proposals": {
+      "post": {
+        "operationId": "PlannerController_proposals",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProposalViewDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/scheduler/proposals/{id}/confirm": {
+      "post": {
+        "operationId": "PlannerController_confirm",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/scheduler/proposals/{id}/sessions/{sessionId}": {
+      "patch": {
+        "operationId": "PlannerController_editProposal",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalViewDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/scheduler/proposals/{id}/undo": {
+      "post": {
+        "operationId": "PlannerController_undo",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/trash": {
+      "get": {
+        "operationId": "PlannerController_trash",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/trash/{kind}/{id}/restore": {
+      "post": {
+        "operationId": "PlannerController_restore",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["planner"]
+      }
+    },
+    "/api/imports/usos/preview": {
+      "post": {
+        "operationId": "ImportsController_importPreview",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Imports"]
+      }
+    },
+    "/api/imports/{id}/commit": {
+      "post": {
+        "operationId": "ImportsController_importCommit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["Imports"]
+      }
+    },
+    "/api/teams": {
+      "get": {
+        "operationId": "ProjectsController_teams",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamViewDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["projects"]
+      },
+      "post": {
+        "operationId": "ProjectsController_team",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TitleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/invitations": {
+      "post": {
+        "operationId": "ProjectsController_invite",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/invitations/accept": {
+      "post": {
+        "operationId": "ProjectsController_acceptInvite",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/members/{userId}": {
+      "patch": {
+        "operationId": "ProjectsController_membership",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      },
+      "delete": {
+        "operationId": "ProjectsController_removeMember",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/projects": {
+      "post": {
+        "operationId": "ProjectsController_project",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TitleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/projects/{projectId}": {
+      "patch": {
+        "operationId": "ProjectsController_editProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TitleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      },
+      "delete": {
+        "operationId": "ProjectsController_deleteProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/tasks/{id}/comments": {
+      "post": {
+        "operationId": "ProjectsController_comment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/tasks/{id}/resources": {
+      "post": {
+        "operationId": "ProjectsController_resource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/tasks/{id}/resources/{resourceId}": {
+      "delete": {
+        "operationId": "ProjectsController_deleteResource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "resourceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/availability": {
+      "post": {
+        "operationId": "ProjectsController_availability",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/meetings": {
+      "post": {
+        "operationId": "ProjectsController_meeting",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/meetings/{meetingId}/accept": {
+      "post": {
+        "operationId": "ProjectsController_acceptMeeting",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "meetingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/meetings/{meetingId}": {
+      "delete": {
+        "operationId": "ProjectsController_cancelMeeting",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "meetingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/assignments": {
+      "post": {
+        "operationId": "ProjectsController_assignments",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["projects"]
+      }
+    },
+    "/api/teams/{id}/assignments/{proposalId}/confirm": {
+      "post": {
+        "operationId": "ProjectsController_confirmAssignments",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "proposalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["projects"]
+      }
+    }
+  },
+  "info": {
+    "title": "SmartUniPlanner API",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "NoticeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "seen": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "title", "body", "seen", "createdAt"]
+      },
+      "UserViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "email", "timezone"]
+      },
+      "AuthSessionDto": {
+        "type": "object",
+        "properties": {
+          "registrationRequiresCode": {
+            "type": "boolean"
+          },
+          "user": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserViewDto"
+              }
+            ]
+          },
+          "csrfToken": {
+            "type": "string"
+          }
+        },
+        "required": ["registrationRequiresCode", "user", "csrfToken"]
+      },
+      "AuthDto": {
+        "type": "object",
+        "properties": {
+          "registrationCode": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 10
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "PreferencesViewDto": {
+        "type": "object",
+        "properties": {
+          "workStart": {
+            "type": "number"
+          },
+          "workEnd": {
+            "type": "number"
+          },
+          "weekendStart": {
+            "type": "number"
+          },
+          "weekendEnd": {
+            "type": "number"
+          },
+          "dailyLimit": {
+            "type": "number"
+          },
+          "buffer": {
+            "type": "number"
+          },
+          "recovery": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "workStart",
+          "workEnd",
+          "weekendStart",
+          "weekendEnd",
+          "dailyLimit",
+          "buffer",
+          "recovery"
+        ]
+      },
+      "TaskViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "deadlineDate": {
+            "type": "string"
+          },
+          "requiredMinutes": {
+            "type": "number"
+          },
+          "minSessionMinutes": {
+            "type": "number"
+          },
+          "maxSessionMinutes": {
+            "type": "number"
+          },
+          "importance": {
+            "type": "number"
+          },
+          "completedMinutes": {
+            "type": "number"
+          },
+          "plannedMinutes": {
+            "type": "number"
+          },
+          "missingMinutes": {
+            "type": "number"
+          },
+          "version": {
+            "type": "number"
+          },
+          "recurrence": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "assigneeName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "title",
+          "description",
+          "status",
+          "deadlineDate",
+          "requiredMinutes",
+          "minSessionMinutes",
+          "maxSessionMinutes",
+          "importance",
+          "completedMinutes",
+          "plannedMinutes",
+          "missingMinutes",
+          "version",
+          "assigneeName"
+        ]
+      },
+      "EventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "isPermanent": {
+            "type": "boolean"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string"
+          },
+          "occurrenceDate": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": ["id", "title", "start", "end", "source", "isPermanent"]
+      },
+      "SlotDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": ["start", "end"]
+      },
+      "SnapshotDto": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserViewDto"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/PreferencesViewDto"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskViewDto"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventDto"
+            }
+          },
+          "freeSlots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotDto"
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "revision",
+          "user",
+          "preferences",
+          "tasks",
+          "events",
+          "freeSlots",
+          "conflicts"
+        ]
+      },
+      "CommentViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "body", "author", "createdAt"]
+      },
+      "ResourceViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "title", "url"]
+      },
+      "TaskDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "deadlineDate": {
+            "type": "string"
+          },
+          "requiredMinutes": {
+            "type": "number"
+          },
+          "minSessionMinutes": {
+            "type": "number"
+          },
+          "maxSessionMinutes": {
+            "type": "number"
+          },
+          "importance": {
+            "type": "number"
+          },
+          "completedMinutes": {
+            "type": "number"
+          },
+          "plannedMinutes": {
+            "type": "number"
+          },
+          "missingMinutes": {
+            "type": "number"
+          },
+          "version": {
+            "type": "number"
+          },
+          "recurrence": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "assigneeName": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentViewDto"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceViewDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "title",
+          "description",
+          "status",
+          "deadlineDate",
+          "requiredMinutes",
+          "minSessionMinutes",
+          "maxSessionMinutes",
+          "importance",
+          "completedMinutes",
+          "plannedMinutes",
+          "missingMinutes",
+          "version",
+          "assigneeName",
+          "comments",
+          "resources"
+        ]
+      },
+      "TaskInputDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "deadlineDate": {
+            "type": "string"
+          },
+          "requiredMinutes": {
+            "type": "number"
+          },
+          "minSessionMinutes": {
+            "type": "number"
+          },
+          "maxSessionMinutes": {
+            "type": "number"
+          },
+          "importance": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "recurrence": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "assigneeId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": ["title", "deadlineDate", "requiredMinutes"]
+      },
+      "StatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": ["status", "version"]
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "allowConflict": {
+            "type": "boolean"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "date", "startTime", "endTime", "version"]
+      },
+      "ActivityInputDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "anchorDate": {
+            "type": "string"
+          },
+          "untilDate": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "recurrence": {
+            "type": "string"
+          },
+          "isPermanent": {
+            "type": "boolean"
+          },
+          "allowConflict": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "title",
+          "anchorDate",
+          "startTime",
+          "endTime",
+          "recurrence",
+          "isPermanent"
+        ]
+      },
+      "ActivityViewDto": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "anchorDate": {
+            "type": "string"
+          },
+          "untilDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "recurrence": {
+            "type": "string"
+          },
+          "isPermanent": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "timezone",
+          "id",
+          "title",
+          "location",
+          "anchorDate",
+          "untilDate",
+          "startTime",
+          "endTime",
+          "recurrence",
+          "isPermanent",
+          "version"
+        ]
+      },
+      "OccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "allowConflict": {
+            "type": "boolean"
+          }
+        },
+        "required": ["title", "date", "startTime", "endTime", "version"]
+      },
+      "PreferencesInputDto": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "workStart": {
+            "type": "number"
+          },
+          "workEnd": {
+            "type": "number"
+          },
+          "weekendStart": {
+            "type": "number"
+          },
+          "weekendEnd": {
+            "type": "number"
+          },
+          "dailyLimit": {
+            "type": "number"
+          },
+          "buffer": {
+            "type": "number"
+          },
+          "recovery": {
+            "type": "number"
+          },
+          "revision": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "timezone",
+          "workStart",
+          "workEnd",
+          "weekendStart",
+          "weekendEnd",
+          "dailyLimit",
+          "buffer",
+          "recovery",
+          "revision"
+        ]
+      },
+      "ProposalInputDto": {
+        "type": "object",
+        "properties": {
+          "allocationMode": {
+            "type": "string"
+          },
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["allocationMode"]
+      },
+      "PlannedSessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "taskId", "title", "start", "end", "kind"]
+      },
+      "SoftMoveDto": {
+        "type": "object",
+        "properties": {
+          "activityId": {
+            "type": "string"
+          },
+          "occurrenceDate": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "activityId",
+          "occurrenceDate",
+          "title",
+          "from",
+          "start",
+          "end"
+        ]
+      },
+      "TaskAllocationDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "requested": {
+            "type": "number"
+          },
+          "placed": {
+            "type": "number"
+          },
+          "missing": {
+            "type": "number"
+          }
+        },
+        "required": ["taskId", "title", "requested", "placed", "missing"]
+      },
+      "ProposalViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "strategy": {
+            "type": "string"
+          },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlannedSessionDto"
+            }
+          },
+          "moves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SoftMoveDto"
+            }
+          },
+          "totals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskAllocationDto"
+            }
+          }
+        },
+        "required": ["id", "strategy", "sessions", "moves", "totals"]
+      },
+      "ProposalSessionDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        },
+        "required": ["date", "startTime", "endTime"]
+      },
+      "ImportDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "replace": {
+            "type": "boolean"
+          }
+        },
+        "required": ["name", "content", "from", "to"]
+      },
+      "ImportedViewDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "start", "end"]
+      },
+      "ImportPreviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "added": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number"
+          },
+          "unchanged": {
+            "type": "number"
+          },
+          "removed": {
+            "type": "number"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportedViewDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "added",
+          "updated",
+          "unchanged",
+          "removed",
+          "warnings",
+          "events"
+        ]
+      },
+      "MemberUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "email"]
+      },
+      "MemberDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "shareAvailability": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/MemberUserDto"
+          }
+        },
+        "required": ["userId", "role", "shareAvailability", "user"]
+      },
+      "ProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskViewDto"
+            }
+          }
+        },
+        "required": ["id", "title", "description", "tasks"]
+      },
+      "MeetingViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "acceptedIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "creatorId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "start",
+          "end",
+          "participantIds",
+          "acceptedIds",
+          "status",
+          "creatorId"
+        ]
+      },
+      "TeamViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberDto"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectDto"
+            }
+          },
+          "meetings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeetingViewDto"
+            }
+          }
+        },
+        "required": ["id", "name", "members", "projects", "meetings"]
+      },
+      "TitleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": ["title"]
+      },
+      "InvitationDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "role"]
+      },
+      "TokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["token"]
+      },
+      "MembershipDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "shareAvailability": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommentDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": ["body"]
+      },
+      "ResourceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "url"]
+      },
+      "AvailabilityDto": {
+        "type": "object",
+        "properties": {
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "number"
+          }
+        },
+        "required": ["participantIds", "from", "to", "durationMinutes"]
+      },
+      "MeetingDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "participantIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": ["title", "participantIds", "start", "end"]
+      },
+      "AssignmentDto": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "availableMinutes": {
+            "type": "number"
+          },
+          "requiredMinutes": {
+            "type": "number"
+          },
+          "overloaded": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "taskId",
+          "title",
+          "userId",
+          "userName",
+          "availableMinutes",
+          "requiredMinutes",
+          "overloaded"
+        ]
+      },
+      "AssignmentsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignmentDto"
+            }
+          }
+        },
+        "required": ["id", "suggestions"]
+      }
+    }
+  }
+}

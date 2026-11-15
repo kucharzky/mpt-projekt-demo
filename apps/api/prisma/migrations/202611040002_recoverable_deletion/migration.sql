@@ -1,0 +1,3 @@
+ALTER TABLE "Task" ADD COLUMN "deletedAt" TIMESTAMP(3);
+ALTER TABLE "Activity" ADD COLUMN "deletedAt" TIMESTAMP(3);
+ALTER TABLE "TaskSession" ADD COLUMN "deletedAt" TIMESTAMP(3);
