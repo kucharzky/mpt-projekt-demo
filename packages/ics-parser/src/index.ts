@@ -37,3 +37,26 @@ export function validateIcsFormat(content: string, maxBytes = 10_000_000): { val
   }
   return { valid: true };
 }
+
+/**
+ * Formats a series of events into standard iCalendar RFC-5545 format.
+ */
+export function formatIcsCalendar(events: { uid: string; summary: string; dtStart: string; dtEnd: string; location?: string }[]): string {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//SmartUniPlanner//PL",
+    "CALSCALE:GREGORIAN",
+  ];
+  for (const ev of events) {
+    lines.push("BEGIN:VEVENT");
+    lines.push(`UID:${ev.uid}`);
+    lines.push(`SUMMARY:${ev.summary}`);
+    lines.push(`DTSTART:${ev.dtStart}`);
+    lines.push(`DTEND:${ev.dtEnd}`);
+    if (ev.location) lines.push(`LOCATION:${ev.location}`);
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
+}
