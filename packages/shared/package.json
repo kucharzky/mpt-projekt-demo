@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"lint: not configured yet\"",
-    "test": "echo \"test: not configured yet\""
+    "test": "echo \"test: not configured yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.7.2"

@@ -1,0 +1,17 @@
+.git
+.agents
+.codex
+.scratch
+.env
+.env.*
+node_modules
+dist
+coverage
+*.tsbuildinfo
+.DS_Store
+
+**/node_modules
+**/dist
+
+deploy/.env*
+security_best_practices_report.md

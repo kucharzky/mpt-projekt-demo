@@ -1,0 +1,33 @@
+{
+	email {$ACME_EMAIL}
+	admin off
+	skip_install_trust
+	http_port 8080
+	https_port 8443
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			write 60s
+			idle 60s
+		}
+		max_header_size 16KB
+	}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+	header -Server
+	request_body {
+		max_size 3MB
+	}
+	# Readiness is used inside Docker, without publishing infrastructure details.
+	@health path_regexp health (?i)^/api/health/?$
+	respond @health 404
+	reverse_proxy api:3001 {
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 30s
+		}
+	}
+}
