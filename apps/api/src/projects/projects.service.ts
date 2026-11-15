@@ -240,10 +240,193 @@ export class ProjectsService {
     await this.planner.taskAccess(this.db, userId, taskId, true);
     return this.db.resource.deleteMany({ where: { id, taskId } });
   }
-  async availability(_userId: string, _teamId: string, _input: AvailabilityDto): Promise<unknown> { return {}; }
-  async meeting(_userId: string, _teamId: string, _input: MeetingDto): Promise<unknown> { return {}; }
-  async acceptMeeting(_userId: string, _teamId: string, _id: string): Promise<unknown> { return {}; }
-  async cancelMeeting(_userId: string, _teamId: string, _id: string): Promise<unknown> { return {}; }
+  async availability(userId: string, teamId: string, input: AvailabilityDto) {
+    await this.member(this.db, userId, teamId);
+    assertRange(input.from, input.to, 31);
+    if (
+      !input.participantIds.length ||
+      new Set(input.participantIds).size !== input.participantIds.length
+    )
+      throw new BadRequestException("Wybierz co najmniej jedną osobę.");
+    return this.db.$transaction(
+      async (tx) => {
+        const windows: ReturnType<typeof freeWindows>[] = [];
+        for (const id of input.participantIds) {
+          const member = await this.member(tx, id, teamId);
+          if (!member.shareAvailability)
+            throw new ForbiddenException(
+              "Wybrana osoba nie udostępnia dostępności.",
+            );
+          const u = await tx.user.findUniqueOrThrow({ where: { id } }),
+            events = await this.planner.events(
+              tx,
+              id,
+              addDays(input.from, -1),
+              addDays(input.to, 1),
+            );
+          windows.push(
+            freeWindows(
+              events.filter((e) => e.status !== "MISSED"),
+              addDays(input.from, -1),
+              addDays(input.to, 1),
+              u.timezone,
+              this.planner.prefs(u.preferences),
+              false,
+            ),
+          );
+        }
+        const actor = await tx.user.findUniqueOrThrow({
+            where: { id: userId },
+          }),
+          from = Math.max(
+            Date.now(),
+            +localInstant(input.from, "00:00", actor.timezone),
+          ),
+          to = +localInstant(input.to, "00:00", actor.timezone);
+        const slots: { start: string; end: string }[] = [];
+        for (
+          let start = Math.ceil(from / 900000) * 900000;
+          start + input.durationMinutes * 60000 <= to && slots.length < 30;
+          start += 900000
+        ) {
+          const end = start + input.durationMinutes * 60000;
+          if (
+            windows.every((ws) =>
+              ws.some((w) => +w.start <= start && +w.end >= end),
+            )
+          )
+            slots.push({
+              start: new Date(start).toISOString(),
+              end: new Date(end).toISOString(),
+            });
+        }
+        return slots;
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+  async meeting(userId: string, teamId: string, input: MeetingDto) {
+    await this.member(this.db, userId, teamId);
+    const ids = [...new Set(input.participantIds)],
+      start = new Date(input.start),
+      end = new Date(input.end);
+    if (
+      !ids.includes(userId) ||
+      !Number.isFinite(+start) ||
+      !Number.isFinite(+end) ||
+      +end <= +start ||
+      +end - +start > 240 * 60000 ||
+      start < new Date()
+    )
+      throw new BadRequestException(
+        "Wybierz poprawny przyszły termin i uwzględnij siebie na liście uczestników.",
+      );
+    return this.db.$transaction(
+      async (tx) => {
+        const revisions: Record<string, number> = {};
+        for (const id of ids) {
+          const m = await this.member(tx, id, teamId);
+          if (!m.shareAvailability)
+            throw new ForbiddenException(
+              "Każdy uczestnik musi udostępnić dostępność.",
+            );
+          const u = await tx.user.findUniqueOrThrow({ where: { id } });
+          const events = await this.planner.events(
+            tx,
+            id,
+            dateKey(start, u.timezone),
+            addDays(dateKey(end, u.timezone), 1),
+          );
+          if (
+            events
+              .filter((e) => e.status !== "MISSED")
+              .some((e) => overlaps(e, { start, end }))
+          )
+            throw new ConflictException("Wybrany termin nie jest już wolny.");
+          revisions[id] = (
+            await tx.plannerState.findUniqueOrThrow({ where: { userId: id } })
+          ).revision;
+        }
+        const meeting = await tx.meeting.create({
+          data: {
+            teamId,
+            creatorId: userId,
+            title: input.title.trim(),
+            start,
+            end,
+            participantIds: ids,
+            acceptedIds: [],
+            revisions: json(revisions),
+          },
+        });
+        for (const id of ids)
+          await tx.notification.create({
+            data: {
+              userId: id,
+              key: `meeting:${meeting.id}`,
+              title: "Nowa propozycja spotkania",
+              body: input.title.trim(),
+            },
+          });
+        return meeting;
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+  async acceptMeeting(userId: string, teamId: string, id: string) {
+    const before = await this.db.meeting.findFirst({ where: { id, teamId } });
+    if (!before || !before.participantIds.includes(userId))
+      throw new NotFoundException();
+    return this.db.$transaction(async (tx) => {
+      for (const uid of [...before.participantIds].sort())
+        await tx.$queryRaw`SELECT "userId" FROM "PlannerState" WHERE "userId" = ${uid} FOR UPDATE`;
+      await tx.$queryRaw`SELECT "id" FROM "Meeting" WHERE "id" = ${id} FOR UPDATE`;
+      const meeting = await tx.meeting.findUniqueOrThrow({ where: { id } });
+      if (meeting.status === "CONFIRMED") return { ok: true, confirmed: true };
+      if (meeting.status !== "PENDING" || meeting.start < new Date())
+        throw new ConflictException("Propozycja spotkania jest nieaktualna.");
+      const acceptedIds = [...new Set([...meeting.acceptedIds, userId])],
+        confirmed = acceptedIds.length === meeting.participantIds.length;
+      if (confirmed) {
+        const revisions = meeting.revisions as Record<string, number>;
+        for (const uid of meeting.participantIds) {
+          const m = await this.member(tx, uid, teamId);
+          if (!m.shareAvailability)
+            throw new ConflictException(
+              "Zmieniono zgodę na udostępnianie dostępności.",
+            );
+          checkVersion(
+            (
+              await tx.plannerState.findUniqueOrThrow({
+                where: { userId: uid },
+              })
+            ).revision,
+            revisions[uid],
+          );
+        }
+        await tx.plannerState.updateMany({
+          where: { userId: { in: meeting.participantIds } },
+          data: { revision: { increment: 1 } },
+        });
+      }
+      await tx.meeting.update({
+        where: { id },
+        data: { acceptedIds, status: confirmed ? "CONFIRMED" : "PENDING" },
+      });
+      return { ok: true, confirmed };
+    });
+  }
+  async cancelMeeting(userId: string, teamId: string, id: string) {
+    const member = await this.member(this.db, userId, teamId),
+      meeting = await this.db.meeting.findFirst({ where: { id, teamId } });
+    if (!meeting) throw new NotFoundException();
+    if (member.role === "MEMBER" && meeting.creatorId !== userId)
+      throw new ForbiddenException();
+    return this.db.mutate(meeting.participantIds, async (tx) => {
+      await tx.meeting.update({ where: { id }, data: { status: "CANCELLED" } });
+      return { ok: true };
+    });
+  }
   async assignments(_userId: string, _teamId: string): Promise<unknown> { return {}; }
   async confirmAssignments(_userId: string, _teamId: string, _id: string): Promise<unknown> { return {}; }
 }
