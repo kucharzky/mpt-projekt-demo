@@ -427,6 +427,250 @@ export class ProjectsService {
       return { ok: true };
     });
   }
-  async assignments(_userId: string, _teamId: string): Promise<unknown> { return {}; }
-  async confirmAssignments(_userId: string, _teamId: string, _id: string): Promise<unknown> { return {}; }
+  async assignments(userId: string, teamId: string) {
+    await this.member(this.db, userId, teamId, true);
+    return this.db.$transaction(
+      async (tx) => {
+        const members = await tx.membership.findMany({
+          where: { teamId, shareAvailability: true },
+          include: { user: true },
+        });
+        if (!members.length)
+          throw new BadRequestException(
+            "Najpierw członkowie zespołu muszą udostępnić dostępność.",
+          );
+        const tasks = await tx.task.findMany({
+            where: {
+              project: { teamId },
+              deletedAt: null,
+              status: { not: "DONE" },
+            },
+            include: taskInclude,
+            orderBy: { deadlineDate: "asc" },
+          }),
+          load = new Map<string, number>(),
+          revisions: Record<string, number> = {},
+          suggestions = [];
+        for (const m of members)
+          revisions[m.userId] = (
+            await tx.plannerState.findUniqueOrThrow({
+              where: { userId: m.userId },
+            })
+          ).revision;
+        for (const task of tasks) {
+          const candidates = [];
+          for (const m of members) {
+            if (
+              task.sessions.some(
+                (s) =>
+                  s.pinned && s.status === "PLANNED" && s.start > new Date(),
+              ) &&
+              m.userId !== task.userId
+            )
+              continue;
+            const from = dateKey(new Date(), m.user.timezone),
+              to = addDays(task.deadlineDate.toISOString().slice(0, 10), 1);
+            let available = 0;
+            if (to > from && daysBetweenBound(from, to)) {
+              const prefs = this.planner.prefs(m.user.preferences),
+                teamTaskIds = new Set(tasks.map((t) => t.id));
+              const events = (
+                await this.planner.events(tx, m.userId, from, to)
+              ).filter(
+                (e) =>
+                  e.status !== "MISSED" &&
+                  !(
+                    e.taskId &&
+                    teamTaskIds.has(e.taskId) &&
+                    !e.pinned &&
+                    e.status === "PLANNED" &&
+                    e.start > new Date()
+                  ),
+              );
+              const padded = events.map((e) => ({
+                ...e,
+                start: new Date(
+                  +e.start -
+                    (e.source === "RECOVERY_BREAK" ? 0 : prefs.buffer * 60000),
+                ),
+                end: new Date(
+                  +e.end +
+                    (e.source === "RECOVERY_BREAK" ? 0 : prefs.buffer * 60000),
+                ),
+              }));
+              const windows = freeWindows(
+                padded,
+                from,
+                to,
+                m.user.timezone,
+                prefs,
+                false,
+              );
+              for (let day = from; day < to; day = addDays(day, 1)) {
+                const free = windows
+                  .filter((w) => dateKey(w.start, m.user.timezone) === day)
+                  .reduce(
+                    (sum, w) =>
+                      sum +
+                      Math.max(
+                        0,
+                        (+w.end - Math.max(+w.start, Date.now())) / 60000,
+                      ),
+                    0,
+                  );
+                const used = events
+                  .filter(
+                    (e) =>
+                      e.source === "SCHEDULED_TASK" &&
+                      dateKey(e.start, m.user.timezone) === day,
+                  )
+                  .reduce((sum, e) => sum + (+e.end - +e.start) / 60000, 0);
+                available += Math.max(
+                  0,
+                  Math.min(free, prefs.dailyLimit - used),
+                );
+              }
+              const backlog = await tx.task.findMany({
+                where: {
+                  userId: m.userId,
+                  deletedAt: null,
+                  status: { not: "DONE" },
+                  deadlineDate: { lte: task.deadlineDate },
+                  id: { notIn: tasks.map((t) => t.id) },
+                },
+                include: taskInclude,
+              });
+              available -= backlog.reduce(
+                (sum, t) => sum + Math.max(0, taskView(t).missingMinutes),
+                0,
+              );
+            }
+            candidates.push({
+              userId: m.userId,
+              userName: m.user.name,
+              availableMinutes: Math.max(
+                0,
+                Math.floor(available) - (load.get(m.userId) ?? 0),
+              ),
+            });
+          }
+          if (!candidates.length)
+            throw new BadRequestException(
+              "Zadanie z zablokowanymi sesjami wymaga udostępnienia dostępności obecnej osoby odpowiedzialnej.",
+            );
+          candidates.sort(
+            (a, b) =>
+              b.availableMinutes - a.availableMinutes ||
+              a.userId.localeCompare(b.userId),
+          );
+          const best = candidates[0],
+            remaining = Math.max(
+              0,
+              task.requiredMinutes - taskView(task).completedMinutes,
+            );
+          load.set(best.userId, (load.get(best.userId) ?? 0) + remaining);
+          suggestions.push({
+            taskId: task.id,
+            title: task.title,
+            version: task.version,
+            fromUserId: task.userId,
+            ...best,
+            requiredMinutes: remaining,
+            overloaded: best.availableMinutes < remaining,
+          });
+        }
+        for (const id of tasks.map((t) => t.userId))
+          if (!(id in revisions))
+            revisions[id] = (
+              await tx.plannerState.findUniqueOrThrow({ where: { userId: id } })
+            ).revision;
+        const proposal = await tx.assignmentProposal.create({
+          data: {
+            teamId,
+            creatorId: userId,
+            payload: json(suggestions),
+            revisions: json(revisions),
+            expiresAt: new Date(Date.now() + 10 * 60000),
+          },
+        });
+        return { id: proposal.id, suggestions };
+      },
+      { isolationLevel: "RepeatableRead", timeout: 20000 },
+    );
+  }
+  async confirmAssignments(userId: string, teamId: string, id: string) {
+    await this.member(this.db, userId, teamId, true);
+    const proposal = await this.db.assignmentProposal.findFirst({
+      where: { id, teamId },
+    });
+    if (!proposal) throw new NotFoundException();
+    const revisions = proposal.revisions as Record<string, number>;
+    return this.db.mutate(Object.keys(revisions), async (tx) => {
+      const current = await tx.assignmentProposal.findUniqueOrThrow({
+        where: { id },
+      });
+      if (current.confirmed) return { ok: true, alreadyConfirmed: true };
+      if (current.expiresAt < new Date())
+        throw new ConflictException("Propozycja wygasła.");
+      for (const [uid, version] of Object.entries(revisions))
+        checkVersion(
+          (await tx.plannerState.findUniqueOrThrow({ where: { userId: uid } }))
+            .revision,
+          version,
+        );
+      const items = current.payload as unknown as {
+        taskId: string;
+        version: number;
+        userId: string;
+        fromUserId: string;
+        title: string;
+      }[];
+      for (const item of items) {
+        const member = await this.member(tx, item.userId, teamId);
+        if (!member.shareAvailability)
+          throw new ConflictException("Członek wycofał dostępność.");
+        const t = await tx.task.findUniqueOrThrow({
+          where: { id: item.taskId },
+        });
+        checkVersion(t.version, item.version);
+        if (item.userId !== item.fromUserId) {
+          if (
+            await tx.taskSession.count({
+              where: { taskId: t.id, start: { gt: new Date() }, pinned: true },
+            })
+          )
+            throw new ConflictException(
+              "Zadanie ma zablokowane sesje. Najpierw je odblokuj.",
+            );
+          await tx.taskSession.deleteMany({
+            where: {
+              taskId: t.id,
+              start: { gt: new Date() },
+              status: "PLANNED",
+            },
+          });
+          await tx.task.update({
+            where: { id: t.id },
+            data: { userId: item.userId, version: { increment: 1 } },
+          });
+          await tx.notification.create({
+            data: {
+              userId: item.userId,
+              key: `assignment:${id}:${t.id}`,
+              title: "Przypisano Ci zadanie",
+              body: item.title,
+            },
+          });
+        }
+      }
+      await tx.assignmentProposal.update({
+        where: { id },
+        data: { confirmed: true },
+      });
+      return { ok: true };
+    });
+  }
+}
+function daysBetweenBound(from: string, to: string) {
+  return new Date(to).getTime() - new Date(from).getTime() <= 366 * 86400000;
 }
