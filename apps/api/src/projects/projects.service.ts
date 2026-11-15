@@ -224,9 +224,22 @@ export class ProjectsService {
       },
     );
   }
-  async comment(_userId: string, _taskId: string, _body: string): Promise<unknown> { return {}; }
-  async resource(_userId: string, _taskId: string, _title: string, _url: string): Promise<unknown> { return {}; }
-  async deleteResource(_userId: string, _taskId: string, _id: string): Promise<unknown> { return {}; }
+  async comment(userId: string, taskId: string, body: string) {
+    await this.planner.taskAccess(this.db, userId, taskId);
+    return this.db.comment.create({
+      data: { userId, taskId, body: body.trim() },
+    });
+  }
+  async resource(userId: string, taskId: string, title: string, url: string) {
+    await this.planner.taskAccess(this.db, userId, taskId, true);
+    return this.db.resource.create({
+      data: { taskId, title: title.trim(), url },
+    });
+  }
+  async deleteResource(userId: string, taskId: string, id: string) {
+    await this.planner.taskAccess(this.db, userId, taskId, true);
+    return this.db.resource.deleteMany({ where: { id, taskId } });
+  }
   async availability(_userId: string, _teamId: string, _input: AvailabilityDto): Promise<unknown> { return {}; }
   async meeting(_userId: string, _teamId: string, _input: MeetingDto): Promise<unknown> { return {}; }
   async acceptMeeting(_userId: string, _teamId: string, _id: string): Promise<unknown> { return {}; }
