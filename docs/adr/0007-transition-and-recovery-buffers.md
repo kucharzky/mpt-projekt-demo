@@ -1,0 +1,3 @@
+# Transition buffers and recovery breaks
+
+Auto-scheduled sessions keep a 15-minute transition buffer from neighboring occupied blocks (implemented by inflating busy time; USOS is never moved). After every second same-task session on the **same calendar day**, both Earliest and Balanced try a visible 1-hour `RECOVERY_BREAK` on that day with no extra 15-minute padding. If a full hour does not fit that day, the recovery is omitted rather than moved to the next morning. Balanced prefers under-filled days but must keep placing until capacity matches Earliest (recovery failure must not abort the plan). Marking a parent task Done keeps past sessions, clears future sessions and recoveries, and may prompt rescheduling other active tasks into the freed gaps.
