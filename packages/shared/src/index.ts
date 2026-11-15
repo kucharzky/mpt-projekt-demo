@@ -23,3 +23,17 @@ export interface CalendarEventDto {
   source: EventSource;
   hardLocked: boolean;
 }
+
+export interface TaskFilterOptions {
+  search?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  sortBy?: "deadline" | "priority" | "title";
+  sortOrder?: "asc" | "desc";
+}
+
+export interface KanbanColumnDto {
+  id: TaskStatus;
+  title: string;
+  taskIds: string[];
+}
